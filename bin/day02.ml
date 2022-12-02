@@ -50,4 +50,39 @@ let part_one =
   in
   printf "Part one: %d\n" (sum scores)
 
+type outcome = Loss | Tie | Win
+type instruction = { choice : choice; outcome : outcome }
+
+let to_outcome = function
+  | "X" -> Loss
+  | "Y" -> Tie
+  | "Z" -> Win
+  | _ -> raise (Invalid_argument "Invalid choice")
+
+(* Convert raw input into a instruction *)
+let to_constraint (input : string list) =
+  match input with
+  | [] | _ :: [] -> raise (Invalid_argument "Expect two values")
+  | hd :: tl :: rst -> { choice = to_choice hd; outcome = to_outcome tl }
+
+let should_pick = function
+  | { choice = x; outcome = Tie } -> x
+  | { choice = Rock; outcome = Loss } -> Scissors
+  | { choice = Rock; outcome = Win } -> Paper
+  | { choice = Paper; outcome = Loss } -> Rock
+  | { choice = Paper; outcome = Win } -> Scissors
+  | { choice = Scissors; outcome = Loss } -> Paper
+  | { choice = Scissors; outcome = Win } -> Rock
+
+let instruction_to_round i = { first = i.choice; second = should_pick i }
+
+let part_two =
+  let scores =
+    get_input |> split_lines |> List.map ~f:to_constraint
+    |> List.map ~f:instruction_to_round
+    |> List.map ~f:get_score
+  in
+  printf "Part two: %d\n" (sum scores)
+
 let () = part_one
+let () = part_two
