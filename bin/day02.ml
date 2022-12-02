@@ -1,8 +1,5 @@
 open Core
 
-(* Read the input *)
-let get_input = Common.read_file "data/02.txt"
-
 (* Split the input into blocks *)
 let split_lines input =
   let lines = Common.split_by "\n" input in
@@ -44,12 +41,6 @@ let get_score = function
 
 let sum l = List.fold ~init:0 ~f:( + ) l
 
-let part_one =
-  let scores =
-    get_input |> split_lines |> List.map ~f:to_round |> List.map ~f:get_score
-  in
-  printf "Part one: %d\n" (sum scores)
-
 type outcome = Loss | Tie | Win
 type instruction = { choice : choice; outcome : outcome }
 
@@ -76,9 +67,17 @@ let should_pick = function
 
 let instruction_to_round i = { first = i.choice; second = should_pick i }
 
-let part_two =
+let part_one =
+  let input = Common.read_file "data/02.txt" in
   let scores =
-    get_input |> split_lines |> List.map ~f:to_constraint
+    input |> split_lines |> List.map ~f:to_round |> List.map ~f:get_score
+  in
+  printf "Part one: %d\n" (sum scores)
+
+let part_two =
+  let input = Common.read_file "data/02.txt" in
+  let scores =
+    input |> split_lines |> List.map ~f:to_constraint
     |> List.map ~f:instruction_to_round
     |> List.map ~f:get_score
   in
