@@ -1,4 +1,5 @@
-(executable
- (public_name day01)
- (name day01)
+(executables
+ (package aoc2022)
+ (names day01 day02)
+ (public_names day01 day02)
  (libraries common core str))
