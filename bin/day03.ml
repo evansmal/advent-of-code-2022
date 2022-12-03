@@ -18,7 +18,8 @@ let to_rucksack seq =
   let s = split seq (List.length seq / 2) in
   match s with fst, sec -> { first = fst; second = sec }
 
-let find_common_char (x : rucksack) =
+(* Get the single common char in both compartments *)
+let find_common_rucksack (x : rucksack) =
   let f = Set.of_list (module Char) x.first in
   let s = Set.of_list (module Char) x.second in
   let inter = Set.inter f s |> Set.to_list in
@@ -26,6 +27,10 @@ let find_common_char (x : rucksack) =
   | Some x -> x
   | None -> raise (Invalid_argument "Expect one value")
 
+(*
+     Scale and shift the given char to that a->z = 1->26 and
+     A->Z = 27->52
+*)
 let to_priority = function
   | c when Char.is_lowercase c -> Char.to_int c - 96
   | c when Char.is_uppercase c -> Char.to_int c - (64 - 26)
@@ -37,10 +42,11 @@ type group = { first : char list; second : char list; third : char list }
 
 let list_to_group = function
   | [ fst; sec; thd ] -> { first = fst; second = sec; third = thd }
-  | _ -> raise (Invalid_argument "Invalid")
+  | _ -> raise (Invalid_argument "Expected 3 values in a group")
 
 let to_groups l = List.chunks_of l ~length:3 |> List.map ~f:list_to_group
 
+(* Get the single common char across the group *)
 let find_common_in_group (x : group) =
   let f = Set.of_list (module Char) x.first in
   let s = Set.of_list (module Char) x.second in
@@ -48,14 +54,14 @@ let find_common_in_group (x : group) =
   let inter = Set.inter f s |> Set.inter t |> Set.to_list in
   match List.hd inter with
   | Some x -> x
-  | None -> raise (Invalid_argument "Expect one value")
+  | None -> raise (Invalid_argument "Expect one common value in group")
 
 let part_one =
   let answer =
     read_input |> split_lines
     |> List.map ~f:string_to_char_list
     |> List.map ~f:to_rucksack
-    |> List.map ~f:find_common_char
+    |> List.map ~f:find_common_rucksack
     |> List.map ~f:to_priority
   in
   printf "Part one: %d\n" (sum answer)
