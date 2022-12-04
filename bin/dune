@@ -1,5 +1,5 @@
 (executables
  (package aoc2022)
- (names day01 day02 day03)
- (public_names day01 day02 day03)
+ (names day01 day02 day03 day04)
+ (public_names day01 day02 day03 day04)
  (libraries common core str))
