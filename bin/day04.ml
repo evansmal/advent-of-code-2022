@@ -26,9 +26,24 @@ let does_totally_overlap p =
   is_totally_contained_within p.second p.first
   || is_totally_contained_within p.first p.second
 
+let between value p1 p2 = value >= p1 && value <= p2
+
+let is_overlapping r1 r2 =
+  between r1.starting r2.starting r2.ending
+  || between r1.ending r2.starting r2.ending
+
+let does_overlap_any p =
+  is_overlapping p.second p.first || is_overlapping p.first p.second
+
 let part_one =
   let pairs = split_lines read_input |> List.map ~f:parse_pair in
   let overlap = List.filter ~f:does_totally_overlap pairs in
   printf "Part one: %d\n" (List.length overlap)
 
+let part_two =
+  let pairs = split_lines read_input |> List.map ~f:parse_pair in
+  let overlap = List.filter ~f:does_overlap_any pairs in
+  printf "Part two: %d\n" (List.length overlap)
+
 let () = part_one
+let () = part_two
