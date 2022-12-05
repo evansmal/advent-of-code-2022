@@ -23,9 +23,7 @@ let find_common_rucksack (x : rucksack) =
   let f = Set.of_list (module Char) x.first in
   let s = Set.of_list (module Char) x.second in
   let inter = Set.inter f s |> Set.to_list in
-  match List.hd inter with
-  | Some x -> x
-  | None -> raise (Invalid_argument "Expect one value")
+  match List.hd inter with Some x -> x | None -> failwith "Expect one value"
 
 (*
      Scale and shift the given char to that a->z = 1->26 and
@@ -34,7 +32,7 @@ let find_common_rucksack (x : rucksack) =
 let to_priority = function
   | c when Char.is_lowercase c -> Char.to_int c - 96
   | c when Char.is_uppercase c -> Char.to_int c - (64 - 26)
-  | _ -> raise (Invalid_argument "Expect always a->z, A->Z")
+  | _ -> failwith "Expect always a->z, A->Z"
 
 let sum l = List.fold ~init:0 ~f:( + ) l
 
@@ -42,7 +40,7 @@ type group = { first : char list; second : char list; third : char list }
 
 let list_to_group = function
   | [ fst; sec; thd ] -> { first = fst; second = sec; third = thd }
-  | _ -> raise (Invalid_argument "Expected 3 values in a group")
+  | _ -> failwith "Expected 3 values in a group"
 
 let to_groups l = List.chunks_of l ~length:3 |> List.map ~f:list_to_group
 
@@ -54,7 +52,7 @@ let find_common_in_group (x : group) =
   let inter = Set.inter f s |> Set.inter t |> Set.to_list in
   match List.hd inter with
   | Some x -> x
-  | None -> raise (Invalid_argument "Expect one common value in group")
+  | None -> failwith "Expect one common value in group"
 
 let part_one =
   let answer =

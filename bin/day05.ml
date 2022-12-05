@@ -64,27 +64,15 @@ let execute' stacks instruction =
   let values = pop (get_stack instruction.first) instruction.amount [] in
   push (get_stack instruction.second) values
 
-let part_one =
+let solve executor =
   let s, i = parse_input read_input in
   let stacks = List.map ~f:to_stacks s in
-  let () = List.iter ~f:(execute stacks) i in
-  let tops =
-    stacks |> List.map ~f:Stack.pop_exn
-    |> List.map ~f:(String.make 1)
-    |> String.concat
-  in
-  printf "Part one: %s" tops
+  let () = List.iter ~f:(executor stacks) i in
+  stacks |> List.map ~f:Stack.pop_exn
+  |> List.map ~f:(String.make 1)
+  |> String.concat
 
-let part_two =
-  let s, i = parse_input read_input in
-  let stacks = List.map ~f:to_stacks s in
-  let () = List.iter ~f:(execute' stacks) i in
-  let tops =
-    stacks |> List.map ~f:Stack.pop_exn
-    |> List.map ~f:(String.make 1)
-    |> String.concat
-  in
-  printf "Part two: %s" tops
-
+let part_one = printf "Part one: %s\n" (solve execute)
+let part_two = printf "Part two: %s\n" (solve execute')
 let () = part_one
 let () = part_two

@@ -13,14 +13,14 @@ let to_choice = function
   | "A" | "X" -> Rock
   | "B" | "Y" -> Paper
   | "C" | "Z" -> Scissors
-  | _ -> raise (Invalid_argument "Invalid choice")
+  | _ -> failwith "Invalid choice"
 
 (* Convert raw input into a single round *)
 let to_round (input : string list) =
   let choices = List.map ~f:to_choice input in
   match choices with
   | hd :: tl :: _ -> { first = hd; second = tl }
-  | _ -> raise (Invalid_argument "Expect two values")
+  | _ -> failwith "Expect two values"
 
 (* Points for each outcome *)
 let loss = 0
@@ -48,13 +48,13 @@ let to_outcome = function
   | "X" -> Loss
   | "Y" -> Tie
   | "Z" -> Win
-  | _ -> raise (Invalid_argument "Invalid choice")
+  | _ -> failwith "Invalid choice"
 
 (* Convert raw input into a instruction *)
 let to_constraint (input : string list) =
   match input with
   | hd :: tl :: _ -> { choice = to_choice hd; outcome = to_outcome tl }
-  | _ -> raise (Invalid_argument "Expect two values")
+  | _ -> failwith "Expect two values"
 
 let should_pick = function
   | { choice = x; outcome = Tie } -> x
