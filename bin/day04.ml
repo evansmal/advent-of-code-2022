@@ -2,7 +2,6 @@ open Core
 
 let read_input = Common.read_file "data/04.txt"
 let split_lines input = Common.split_by "\n" input
-let chunks lst size = List.chunks_of lst ~length:size
 
 type range = { starting : int; ending : int }
 type pair = { first : range; second : range }

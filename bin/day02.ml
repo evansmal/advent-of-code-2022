@@ -19,8 +19,8 @@ let to_choice = function
 let to_round (input : string list) =
   let choices = List.map ~f:to_choice input in
   match choices with
-  | [] | _ :: [] -> raise (Invalid_argument "Expect two values")
-  | hd :: tl :: rst -> { first = hd; second = tl }
+  | hd :: tl :: _ -> { first = hd; second = tl }
+  | _ -> raise (Invalid_argument "Expect two values")
 
 (* Points for each outcome *)
 let loss = 0
@@ -53,8 +53,8 @@ let to_outcome = function
 (* Convert raw input into a instruction *)
 let to_constraint (input : string list) =
   match input with
-  | [] | _ :: [] -> raise (Invalid_argument "Expect two values")
-  | hd :: tl :: rst -> { choice = to_choice hd; outcome = to_outcome tl }
+  | hd :: tl :: _ -> { choice = to_choice hd; outcome = to_outcome tl }
+  | _ -> raise (Invalid_argument "Expect two values")
 
 let should_pick = function
   | { choice = x; outcome = Tie } -> x
