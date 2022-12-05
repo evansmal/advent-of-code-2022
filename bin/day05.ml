@@ -44,26 +44,33 @@ let parse_input input =
 
 let to_stacks (s : char list) = Stack.of_list s
 
-let rec pop (stack : char Stack.t) (num : int) (acc : char list) =
-  match num with 0 -> acc | n -> pop stack (n - 1) (Stack.pop_exn stack :: acc)
+let rec pop_n (stack : char Stack.t) (num : int) (acc : char list) =
+  match num with
+  | 0 -> acc
+  | n -> pop_n stack (n - 1) (Stack.pop_exn stack :: acc)
 
-let push (stack : char Stack.t) (values : char list) =
+let push_n (stack : char Stack.t) (values : char list) =
   for i = 0 to List.length values - 1 do
     Stack.push stack (List.nth_exn values i)
   done
 
+(** Execute an [instruction] on [stacks] by alternating popping and 
+    pushing between the source and destination stacks *)
 let execute stacks instruction =
   let get_stack id = List.nth_exn stacks (id - 1) in
   for _ = 0 to instruction.amount - 1 do
-    let values = pop (get_stack instruction.first) 1 [] in
-    push (get_stack instruction.second) values
+    let values = pop_n (get_stack instruction.first) 1 [] in
+    push_n (get_stack instruction.second) values
   done
 
+(** Execute an [instruction] on [stacks] by popping all values
+    before pushing them onto the destination *)
 let execute' stacks instruction =
   let get_stack id = List.nth_exn stacks (id - 1) in
-  let values = pop (get_stack instruction.first) instruction.amount [] in
-  push (get_stack instruction.second) values
+  let values = pop_n (get_stack instruction.first) instruction.amount [] in
+  push_n (get_stack instruction.second) values
 
+(** A generic solver that is parameterized with an executor *)
 let solve executor =
   let s, i = parse_input read_input in
   let stacks = List.map ~f:to_stacks s in
