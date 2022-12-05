@@ -20,11 +20,6 @@ let parse_instructions input =
   let lines = Common.split_by "\n" input in
   List.map ~f:parse_single_instruction lines
 
-let strip_brackets l =
-  String.filter
-    ~f:(fun c -> not (Char.equal c '[' || Char.equal c ']' || Char.equal c ' '))
-    l
-
 let get_initial_stacks =
   let input =
     [
@@ -49,21 +44,25 @@ let parse_input input =
 
 let to_stacks (s : char list) = Stack.of_list s
 
+let rec pop (stack : char Stack.t) (num : int) (acc : char list) =
+  match num with 0 -> acc | n -> pop stack (n - 1) (Stack.pop_exn stack :: acc)
+
+let push (stack : char Stack.t) (values : char list) =
+  for i = 0 to List.length values - 1 do
+    Stack.push stack (List.nth_exn values i)
+  done
+
 let execute stacks instruction =
   let get_stack id = List.nth_exn stacks (id - 1) in
-  for i = 0 to instruction.amount - 1 do
-    match instruction with
-    | { amount; first; second } ->
-        let value = Stack.pop_exn (get_stack first) in
-        Stack.push (get_stack second) value
+  for _ = 0 to instruction.amount - 1 do
+    let values = pop (get_stack instruction.first) 1 [] in
+    push (get_stack instruction.second) values
   done
 
 let execute' stacks instruction =
   let get_stack id = List.nth_exn stacks (id - 1) in
-  for i = 0 to instruction.amount - 1 do
-    match instruction with
-    | { amount; first; second } -> Stack.pop_exn (get_stack first)
-  done
+  let values = pop (get_stack instruction.first) instruction.amount [] in
+  push (get_stack instruction.second) values
 
 let part_one =
   let s, i = parse_input read_input in
