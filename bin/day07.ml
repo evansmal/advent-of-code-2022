@@ -8,7 +8,6 @@ type command = ChangeDirectory of string | ReadDirectory
 type inode =
   | File of { name : string; size : int }
   | Directory of { name : string }
-  | Empty
 
 type entry = INode of inode | Command of command
 
@@ -58,34 +57,33 @@ let process_entry dir fs entry =
           add_node_to_current_dir file
       | Directory dir ->
           let dir = Directory dir in
-          add_node_to_current_dir dir
-      | Empty -> fs)
+          add_node_to_current_dir dir)
 
 let get_input = read_input |> split_lines |> List.map ~f:parse_input
 
-let rec compute_directory_size fs nodes =
+
+let compute_directory_size fs nodes =
   let rec compute fs sum nodes =
     match nodes with
-    | File file :: rest -> compute fs (sum + file.size) rest
+    | File file :: rest -> printf "computing file %s\n" file.name; compute fs (sum + file.size) rest
     | Directory dir :: rest ->
-        let dirs = compute fs sum (Map.find_exn fs dir.name) in
-        compute fs dirs rest 
+        let rest = compute fs 0 rest in
+        let dir = printf "dir %s\n" dir.name; compute fs 0 (Map.find_exn fs dir.name) in
+        sum + rest + dir
     | [] -> sum
-    | _ -> failwith "Unexpected node type"
   in
   compute fs 0 nodes
 
-let exe =
+let populate_filesysem =
   let input = get_input in
   let dirs = Stack.create () in
   let fs = Map.empty (module String) in
-  let fs' = List.fold ~init:fs ~f:(process_entry dirs) input in
-  let total_file_sizes = Map.map ~f:(compute_directory_size fs') fs' in
-  let t = Map.filter ~f:(fun v -> v <= 100000) total_file_sizes in
-  Map.fold ~f:(fun ~key:_ ~data:v sum -> sum + v) ~init:0 t
+  List.fold ~init:fs ~f:(process_entry dirs) input
 
-let part_one =
-  let map = exe in
-  printf "Part one: %d \n" map
+let exe =
+  let fs' = populate_filesysem in
+  let root = Map.find_exn fs' "/" in
+  let d = compute_directory_size fs' root in
+  printf "%d \n " d 
 
-let () = part_one
+
