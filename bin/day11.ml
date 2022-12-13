@@ -1,8 +1,5 @@
 open Core
 
-let read_input = Common.read_file "data/10.txt"
-let split_lines input = Common.split_by "\n" input
-
 type monkey = {
   mutable items : int list;
   mutable inspects : int;

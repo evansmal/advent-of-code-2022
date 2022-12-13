@@ -10,6 +10,7 @@ depends: [
   "dune" {>= "3.6"}
   "core"
   "str"
+  "batteries"
   "odoc" {with-doc}
 ]
 build: [
