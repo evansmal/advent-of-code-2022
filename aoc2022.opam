@@ -10,7 +10,7 @@ depends: [
   "dune" {>= "3.6"}
   "core"
   "str"
-  "batteries"
+  "core_kernel.pairing_heap"
   "odoc" {with-doc}
 ]
 build: [

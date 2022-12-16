@@ -40,17 +40,7 @@ let get_pos grid id =
   let rows, cols = get_dims grid in
   { row = id / cols; col = id mod cols }
 
-let get_height grid id =
-  let { row; col } = get_pos grid id in
-  grid.(row).(col)
-
-let get_height_from_pos grid { row; col } = grid.(row).(col)
-
-let neighbors grid { row = r; col = c } =
-  [ (r, c + 1); (r, c - 1); (r + 1, c); (r - 1, c) ]
-  |> List.map ~f:(fun (r, c) -> get_id grid r c)
-  |> List.filter ~f:(fun nb ->
-         get_height_from_pos grid { row = r; col = c } + 1 >= get_height grid nb)
+let get_height grid { row; col } = grid.(row).(col)
 
 let find_value grid value =
   let rows, cols = get_dims grid in
@@ -59,7 +49,7 @@ let find_value grid value =
     (* Ignore padded regions *)
     for row = 0 to rows - 1 do
       for col = 0 to cols - 1 do
-        let height = get_height_from_pos grid { row; col } in
+        let height = get_height grid { row; col } in
         pos := if height = value then { row; col } else !pos
       done
     done
@@ -69,49 +59,61 @@ let find_value grid value =
 let print_nb (cc, r, c) = printf "(%d, %d, %d)" cc r c
 
 let print_nbs nbs =
-  printf "NB: ";
+  printf "QUEUE: ";
   List.iter ~f:print_nb nbs;
   printf "\n"
 
-let djk grid destination () =
+let djk grid start dest () =
   let rows, cols = get_dims grid in
-  let visited = Array.create ~len:(rows * cols) false in
-  let queue = Batteries.Heap.of_list [ (0, 1, 1) ] in
-
-  let rec djk_aux queue =
-    let count, row, col = Batteries.Heap.find_min queue in
-    let queue = Batteries.Heap.del_min queue in
-    let () =
-      if row = destination.row && col = destination.col then
-        printf "%d %d %d\n" count row col
-    in
-    let () = visited.(get_id grid row col) <- true in
-    let nb =
-      neighbors grid { row; col }
-      |> List.filter ~f:(fun n -> not visited.(n))
-      |> List.map ~f:(fun n ->
-             let pos = get_pos grid n in
-             (count + 1, pos.row, pos.col))
-    in
-    let new_heap = Batteries.Heap.of_list nb in
-    djk_aux (Batteries.Heap.merge queue new_heap)
+  let d = Array.make_matrix ~dimx:rows ~dimy:cols Int.max_value in
+  let queue =
+    Pairing_heap.of_list
+      [ (start.row, start.col) ]
+      ~cmp:(fun (i, j) (k, l) -> Int.compare d.(i).(j) d.(k).(l))
   in
-  djk_aux queue
+  d.(start.row).(start.col) <- 0;
+
+  let rec run () =
+    if Pairing_heap.is_empty queue then None
+    else
+      let i, j = Pairing_heap.pop_exn queue in
+      if i = dest.row && j = dest.col then Some d.(i).(j)
+      else
+        let neighbours = [ (i - 1, j); (i + 1, j); (i, j - 1); (i, j + 1) ] in
+        List.iter neighbours ~f:(fun (i', j') ->
+            if i' >= 0 && i' < rows && j' >= 0 && j' < cols then
+              let step = grid.(i').(j') - grid.(i).(j) in
+              if step <= 1 then
+                let dist = d.(i).(j) + 1 in
+                if dist < d.(i').(j') then (
+                  d.(i').(j') <- dist;
+                  Pairing_heap.add queue (i', j')));
+        run ()
+  in
+  run ()
 
 let start_character = 83
 let end_character = 69
 let a_char = 97
 let z_char = 122
 
-let part_one =
+let part_one () =
   let grid = parse read_input in
   let start = find_value grid start_character in
   let dest = find_value grid end_character in
+  let () = printf "Start: %d, %d\n" start.row start.col in
+  let () = printf "Dest: %d, %d\n" dest.row dest.col in
   let () =
     grid.(start.row).(start.col) <- a_char;
     grid.(dest.row).(dest.col) <- z_char
   in
-  djk (pad grid 999) { row = dest.row + 1; col = dest.col + 1 }
+  let count =
+    djk grid
+      { row = start.row; col = start.col }
+      { row = dest.row; col = dest.col }
+      ()
+  in
+  printf "%d\n" (Option.value ~default:0 count);
+  ()
 
 let () = part_one ()
-

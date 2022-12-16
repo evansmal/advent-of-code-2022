@@ -12,5 +12,5 @@
 (package
  (name aoc2022)
  (synopsis "Solutions to Advent of Code 2022")
- (depends ocaml dune core str batteries))
+ (depends ocaml dune core str core_kernel.pairing_heap))
 
