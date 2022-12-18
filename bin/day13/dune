@@ -1,0 +1,14 @@
+(menhir
+ (modules parser))
+
+(ocamllex lexer)
+
+(library 
+  (name parse)
+  (modules parser lexer ast))
+
+(executable
+ (name main)
+ (public_name day13 )
+ (modules main)
+ (libraries common parse core str))

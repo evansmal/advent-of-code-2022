@@ -1,0 +1,4 @@
+(executable
+ (name main)
+ (public_name day12 )
+ (libraries common core str core_kernel.pairing_heap))

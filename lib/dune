@@ -1,3 +1,8 @@
+(menhir
+ (modules day13_parser))
+(ocamllex day13_lexer)
+
 (library
  (name common)
  (libraries core str))
+

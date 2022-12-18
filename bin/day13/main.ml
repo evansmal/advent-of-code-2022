@@ -30,17 +30,18 @@ let rec parse_signal str =
   let fst = String.get str 0 in
   match fst with
   | '[' ->
-      let closing_brack = find_missing_bracket str in
-      let inner = String.slice str 1 closing_brack in
-      printf "Inner body: %s\n" inner;
+      let closing = find_missing_bracket str in
       ValueList []
+  | ',' ->
+      printf "Got a comma\n";
+      parse_signal (String.slice str 1 (String.length str))
   | n ->
       printf "Its a num\n";
       Value (int_of_char n)
 
 let parse block =
   let l, r =
-    printf "starting to parse block: left %s\n" block;
+    printf "------------ starting to parse block ------\n%s\n\n" block;
     match Common.split_by "\n" block with
     | [ left; right ] -> (parse_signal left, parse_signal right)
     | _ -> failwith "Cannot parse signal block"
@@ -49,3 +50,7 @@ let parse block =
 
 let split = split_lines read_input
 let signals = List.map ~f:parse split
+
+let parse s =
+  let lexbuf = Lexing.from_string s in
+  Parse.Parser.expr Parse.Lexer.read lexbuf

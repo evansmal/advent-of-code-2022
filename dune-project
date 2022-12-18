@@ -9,6 +9,8 @@
 
 (authors "Evan Smal")
 
+(using menhir 2.1)
+
 (package
  (name aoc2022)
  (synopsis "Solutions to Advent of Code 2022")
